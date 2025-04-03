@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Contato</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Botão flutuante */
+        .duvida-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .duvida-btn img {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .duvida-btn img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Formulário */
+        .form-container {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 350px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid #007bff;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Animação */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container h3 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .form-container input,
+        .form-container textarea {
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        .form-container input:focus,
+        .form-container textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .form-container textarea {
+            height: 80px;
+            resize: none;
+        }
+
+        /* Mensagem de status */
+        .status-message {
+            text-align: center;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Botão de envio */
+        .form-container button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .form-container button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Loader (Efeito de carregamento) */
+        .loader {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 3px solid white;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Botão de fechar */
+        .form-container .fechar {
+            text-align: right;
+            cursor: pointer;
+            font-weight: bold;
+            color: #ff4d4d;
+            font-size: 18px;
+        }
+
+        .form-container .fechar:hover {
+            color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão Flutuante -->
+    <button class="duvida-btn" onclick="toggleFormulario()">
+        <img src="https://cdn-icons-png.flaticon.com/128/3405/3405683.png" alt="Estou com dúvidas">
+    </button>
+
+    <!-- Formulário -->
+    <div class="form-container" id="formContato">
+        <div class="fechar" onclick="toggleFormulario()">×</div>
+        <h3>Fale Conosco</h3>
+        
+        <div class="status-message" id="statusMessage"></div>
+
+        <input type="text" id="nome" placeholder="Nome">
+        <input type="email" id="email" placeholder="E-mail">
+        <textarea id="duvida" placeholder="Digite sua dúvida..."></textarea>
+        <button id="btnEnviar" onclick="enviarFormulario()">
+            <span id="btnText">Enviar</span>
+            <div class="loader" id="loader"></div>
+        </button>
+    </div>
+
+    <script>
+        function toggleFormulario() {
+            const form = document.getElementById("formContato");
+            form.style.display = (form.style.display === "block") ? "none" : "block";
+        }
+
+        async function enviarFormulario() {
+            const nome = document.getElementById("nome").value;
+            const email = document.getElementById("email").value;
+            const duvida = document.getElementById("duvida").value;
+            const statusMessage = document.getElementById("statusMessage");
+            const btnEnviar = document.getElementById("btnEnviar");
+            const btnText = document.getElementById("btnText");
+            const loader = document.getElementById("loader");
+
+            if (!nome || !email || !duvida) {
+                statusMessage.textContent = "Por favor, preencha todos os campos!";
+                statusMessage.className = "status-message error";
+                statusMessage.style.display = "block";
+                return;
+            }
+
+            btnEnviar.disabled = true;
+            btnText.style.display = "none";
+            loader.style.display = "block";
+
+            try {
+                const resposta = await fetch("http://localhost:3000/falaconosco", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome, email, duvida })
+                });
+
+                const resultado = await resposta.json();
+                if (resposta.ok) {
+                    statusMessage.textContent = resultado.message;
+                    statusMessage.className = "status-message success";
+                    statusMessage.style.display = "block";
+
+                    // Limpar formulário SOMENTE se for bem-sucedido
+                    document.getElementById("nome").value = "";
+                    document.getElementById("email").value = "";
+                    document.getElementById("duvida").value = "";
+                }
+
+            } catch (error) {
+                statusMessage.textContent = "Erro ao enviar. Tente novamente.";
+                statusMessage.className = "status-message error";
+                statusMessage.style.display = "block";
+            }
+
+            btnEnviar.disabled = false;
+            btnText.style.display = "inline";
+            loader.style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
